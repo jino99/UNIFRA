@@ -1,0 +1,2676 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIFRA - Gestione Universitaria Intelligente</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f5 100%);
+            min-height: 100vh;
+            color: #4a5568;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(167, 139, 250, 0.4);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            border-left: 5px solid #a78bfa;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .progress-ring-circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .tab-active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .water-drop {
+            filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.2));
+        }
+        
+        .quick-add-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-add-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-add-btn:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+        
+        .progress-ahead {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+        }
+        
+        .phase-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .study-phase {
+            background: rgba(167, 139, 250, 0.1);
+            color: #7c3aed;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+        }
+        
+        .review-phase {
+            background: rgba(244, 114, 182, 0.1);
+            color: #db2777;
+            border: 1px solid rgba(244, 114, 182, 0.3);
+        }
+        
+        .exam-phase {
+            background: rgba(251, 146, 60, 0.1);
+            color: #ea580c;
+            border: 1px solid rgba(251, 146, 60, 0.3);
+        }
+        
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+        
+        .task-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-completed {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .task-completed .task-title {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        
+        .context-menu {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            min-width: 160px;
+            display: none;
+        }
+        
+        .context-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .context-menu-item:hover {
+            background: #f3f4f6;
+        }
+        
+        .context-menu-item.delete {
+            color: #ef4444;
+        }
+        
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: #9ca3af;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        .smart-suggestion {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .drag-handle {
+            cursor: grab;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        
+        .drag-handle:hover {
+            opacity: 1;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-6">
+    <!-- Header -->
+    <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-3 mb-4 md:mb-0">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                <i class="fas fa-graduation-cap text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold gradient-text">UNIFRA</h1>
+                <p class="text-gray-600 text-sm">Gestione Universitaria Intelligente</p>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex space-x-2 overflow-x-auto py-2">
+            <button data-tab="dashboard" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all tab-active">Dashboard</button>
+            <button data-tab="tasks" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Tasks Oggi</button>
+            <button data-tab="exams" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Esami</button>
+            <button data-tab="grades" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Libretto</button>
+            <button data-tab="simulator" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Simulatore</button>
+            <button data-tab="wellness" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Wellness</button>
+            <button data-tab="settings" class="tab-btn px-4 py-2 rounded-lg font-medium transition-all">Impostazioni</button>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto">
+        <!-- Toast per messaggi -->
+        <div id="toast" class="toast">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-heart text-pink-500"></i>
+                <p id="toast-message"></p>
+            </div>
+        </div>
+
+        <!-- Modal per conferma -->
+        <div id="modal" class="modal">
+            <div class="glass-card p-6 max-w-md w-full mx-4">
+                <h3 id="modal-title" class="text-xl font-bold mb-4 gradient-text"></h3>
+                <p id="modal-message" class="mb-6"></p>
+                <div class="flex justify-end space-x-4">
+                    <button id="modal-cancel" class="px-4 py-2 text-gray-600">Annulla</button>
+                    <button id="modal-confirm" class="btn-primary px-4 py-2">Conferma</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div id="context-menu" class="context-menu">
+            <div class="context-menu-item" data-action="complete">
+                <i class="fas fa-check text-green-500"></i>
+                <span>Completa Task</span>
+            </div>
+            <div class="context-menu-item" data-action="edit">
+                <i class="fas fa-edit text-blue-500"></i>
+                <span>Modifica</span>
+            </div>
+            <div class="context-menu-item delete" data-action="delete">
+                <i class="fas fa-trash text-red-500"></i>
+                <span>Elimina</span>
+            </div>
+        </div>
+
+        <!-- Sezioni dell'app -->
+        <div id="sections">
+            <!-- Dashboard -->
+            <section id="dashboard" class="tab-section">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Focus Oggi -->
+                    <div class="glass-card p-6 lg:col-span-2">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold gradient-text">Focus Oggi</h2>
+                            <div class="flex items-center space-x-3">
+                                <div id="time-preference" class="text-sm px-3 py-1 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700"></div>
+                                <button id="refresh-tasks" class="text-gray-500 hover:text-purple-600">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtri rapidi -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <button class="filter-btn active px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-full" data-filter="all">Tutti</button>
+                            <button class="filter-btn px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full" data-filter="study">Studio</button>
+                            <button class="filter-btn px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full" data-filter="review">Ripasso</button>
+                            <button class="filter-btn px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full" data-filter="priority">Prioritari</button>
+                        </div>
+                        
+                        <div id="today-tasks-container" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                            <!-- Le task verranno generate dinamicamente -->
+                            <div class="empty-state">
+                                <i class="fas fa-book-open empty-state-icon"></i>
+                                <p class="text-gray-500">Nessun esame in programma per oggi</p>
+                                <p class="text-sm text-gray-400 mt-2">Aggiungi un esame per iniziare</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Panoramica e Statistiche -->
+                    <div class="space-y-6">
+                        <!-- Countdown -->
+                        <div class="glass-card p-6">
+                            <h2 class="text-xl font-bold gradient-text mb-4">Prossimo Esame</h2>
+                            <div id="next-exam-countdown" class="text-center">
+                                <div class="text-5xl font-bold gradient-text mb-2" id="countdown-days">--</div>
+                                <p class="text-gray-600">giorni rimanenti</p>
+                                <p id="next-exam-name" class="mt-4 font-medium">Nessun esame in programma</p>
+                                <div id="exam-phase-info" class="mt-4 text-sm text-gray-600 hidden">
+                                    <p id="phase-details"></p>
+                                    <p id="review-days-info" class="mt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistiche Veloci -->
+                        <div class="glass-card p-6">
+                            <h2 class="text-xl font-bold gradient-text mb-4">Statistiche</h2>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                            <i class="fas fa-book text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Esami Attivi</p>
+                                            <p id="active-exams-count" class="font-bold">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <i class="fas fa-check text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Tasks Oggi</p>
+                                            <p id="today-tasks-count" class="font-bold">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                            <i class="fas fa-clock text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Tempo Cuscinetto</p>
+                                            <p id="cushion-percent-display" class="font-bold">0%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Suggerimenti Intelligenti -->
+                        <div id="smart-suggestions" class="glass-card p-6 hidden">
+                            <h2 class="text-xl font-bold gradient-text mb-4">Suggerimenti</h2>
+                            <div id="suggestion-content" class="text-sm text-gray-600">
+                                <!-- I suggerimenti verranno generati dinamicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Esami Attivi - MODIFICATO PER CARICHE PIÙ LARGHE -->
+                <div class="glass-card p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold gradient-text">Esami Attivi</h2>
+                        <div class="flex space-x-2">
+                            <button id="sort-exams" class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                                <i class="fas fa-sort-amount-down mr-1"></i> Ordina
+                            </button>
+                            <button id="add-exam-btn" class="btn-primary">
+                                <i class="fas fa-plus mr-2"></i> Nuovo Esame
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="active-exams" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Le card degli esami verranno generate dinamicamente -->
+                        <div class="empty-state">
+                            <i class="fas fa-plus-circle empty-state-icon"></i>
+                            <p class="text-gray-500">Nessun esame attivo</p>
+                            <button id="add-exam-empty-btn" class="btn-primary mt-4">Aggiungi Esame</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Wellness Dashboard -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Pomodoro Timer -->
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-bold gradient-text mb-6">Timer Pomodoro</h2>
+                        <div class="text-center">
+                            <div class="relative w-48 h-48 mx-auto mb-6">
+                                <svg class="w-full h-full" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                                    <circle id="pomodoro-progress" cx="50" cy="50" r="45" fill="none" stroke="url(#gradient)" stroke-width="8" 
+                                            stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283" class="progress-ring-circle"/>
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#a78bfa" />
+                                            <stop offset="100%" stop-color="#f472b6" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div id="pomodoro-time" class="text-3xl font-bold gradient-text">25:00</div>
+                                    <div id="pomodoro-phase" class="text-sm text-gray-600">Lavoro</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-center space-x-4">
+                                <button id="pomodoro-start" class="btn-primary px-6">
+                                    <i class="fas fa-play"></i> Inizia
+                                </button>
+                                <button id="pomodoro-reset" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Water Tracker -->
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-bold gradient-text mb-6">Water Tracker</h2>
+                        <div class="text-center mb-6">
+                            <div class="text-5xl font-bold gradient-text mb-2" id="water-count">0</div>
+                            <p class="text-gray-600">bicchieri oggi</p>
+                        </div>
+                        <div class="flex flex-col items-center mb-6">
+                            <div class="mb-4">
+                                <button id="add-water-single" class="water-drop w-20 h-20 mx-auto bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-lg border-2 border-blue-300">
+                                    <i class="fas fa-tint text-blue-500 text-3xl"></i>
+                                </button>
+                                <p class="text-center text-sm text-gray-600 mt-2">Clicca per aggiungere un bicchiere</p>
+                            </div>
+                            <div class="flex justify-center items-center space-x-2 mb-4">
+                                <button id="quick-add-1" class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+                                    +1
+                                </button>
+                                <button id="quick-add-3" class="px-3 py-1 text-sm bg-blue-200 text-blue-800 rounded-lg hover:bg-blue-300">
+                                    +3
+                                </button>
+                                <button id="quick-add-5" class="px-3 py-1 text-sm bg-blue-300 text-blue-900 rounded-lg hover:bg-blue-400">
+                                    +5
+                                </button>
+                            </div>
+                            <div class="w-full max-w-xs mx-auto">
+                                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="water-progress" class="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-600 mt-1">
+                                    <span>0/10</span>
+                                    <span>Obiettivo giornaliero</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="reset-water" class="w-full py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-redo mr-2"></i> Reset Giornaliero
+                        </button>
+                    </div>
+                    
+                    <!-- Premio Post-Esame -->
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-bold gradient-text mb-6">Premio Post-Esame</h2>
+                        <div id="exam-reward" class="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl h-full flex flex-col justify-center">
+                            <div class="text-center">
+                                <i class="fas fa-gift text-4xl text-yellow-500 mb-4"></i>
+                                <p class="text-gray-700 mb-2">Completa un esame per sbloccare il tuo premio!</p>
+                                <p id="reward-text" class="text-lg font-bold text-orange-600">Nessun premio impostato</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks Oggi (Nuova sezione) -->
+            <section id="tasks" class="tab-section hidden">
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold gradient-text">Tasks Oggi</h2>
+                            <p id="today-date" class="text-gray-600"></p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="mark-all-tasks" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200">
+                                <i class="fas fa-check-double mr-2"></i> Completa Tutti
+                            </button>
+                            <button id="print-tasks" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+                                <i class="fas fa-print mr-2"></i> Stampa
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Riassunto Tasks -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600">Tasks Totali</p>
+                                    <p id="total-tasks-count" class="text-3xl font-bold gradient-text">0</p>
+                                </div>
+                                <i class="fas fa-tasks text-3xl text-purple-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600">Completati</p>
+                                    <p id="completed-tasks-count" class="text-3xl font-bold gradient-text">0</p>
+                                </div>
+                                <i class="fas fa-check-circle text-3xl text-green-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600">Pagine Totali</p>
+                                    <p id="total-pages-today" class="text-3xl font-bold gradient-text">0</p>
+                                </div>
+                                <i class="fas fa-file-alt text-3xl text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista Tasks -->
+                    <div id="tasks-list" class="space-y-4">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list empty-state-icon"></i>
+                            <p class="text-gray-500">Nessun task per oggi</p>
+                            <p class="text-sm text-gray-400 mt-2">Aggiungi un esame per generare i tasks</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Note e Memo -->
+                    <div class="mt-8">
+                        <h3 class="text-lg font-bold gradient-text mb-4">Note per Oggi</h3>
+                        <textarea id="daily-notes" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent" rows="3" placeholder="Scrivi qui note, pensieri o memo per la giornata..."></textarea>
+                        <button id="save-notes" class="btn-primary mt-3">Salva Note</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gestione Esami -->
+            <section id="exams" class="tab-section hidden">
+                <div class="glass-card p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold gradient-text">Gestione Esami</h2>
+                        <button id="new-exam-btn" class="btn-primary">
+                            <i class="fas fa-plus mr-2"></i> Nuovo Esame
+                        </button>
+                    </div>
+                    
+                    <!-- Form per aggiungere/modificare esame -->
+                    <div id="exam-form-container" class="hidden mb-8">
+                        <h3 id="form-title" class="text-lg font-bold mb-4 gradient-text">Aggiungi Nuovo Esame</h3>
+                        <form id="exam-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="hidden" id="exam-id">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Nome Esame *</label>
+                                <input type="text" id="exam-name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Data Esame *</label>
+                                <input type="date" id="exam-date" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">CFU *</label>
+                                <input type="number" id="exam-cfu" min="1" max="30" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Pagine Totali *</label>
+                                <input type="number" id="exam-pages" min="1" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Pagine Completate</label>
+                                <div class="flex items-center space-x-2">
+                                    <button type="button" id="decrease-pages" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">-</button>
+                                    <input type="number" id="exam-completed" min="0" class="w-24 p-3 border border-gray-300 rounded-lg text-center" value="0">
+                                    <button type="button" id="increase-pages" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">+</button>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Puoi aggiungere più pagine del totale per anticipare il lavoro</p>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Priorità</label>
+                                <select id="exam-priority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                                    <option value="high">Alta</option>
+                                    <option value="medium" selected>Media</option>
+                                    <option value="low">Bassa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Tipologia</label>
+                                <select id="exam-type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                                    <option value="Intero">Intero</option>
+                                    <option value="Parziale">Parziale</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 mb-2">Link Materiali</label>
+                                <input type="text" id="exam-materials" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent" placeholder="https://...">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 mb-2">Premio Post-Esame</label>
+                                <input type="text" id="exam-reward-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent" placeholder="Es: Weekend al mare, Cena al ristorante...">
+                            </div>
+                            <div class="md:col-span-2 flex justify-end space-x-4">
+                                <button type="button" id="cancel-exam" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Annulla</button>
+                                <button type="submit" id="save-exam" class="btn-primary px-6 py-3">Salva Esame</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Filtri e Ricerca -->
+                    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex flex-wrap gap-2">
+                            <button class="exam-filter-btn active px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-full" data-filter="all">Tutti</button>
+                            <button class="exam-filter-btn px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full" data-filter="active">Attivi</button>
+                            <button class="exam-filter-btn px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full" data-filter="upcoming">Prossimi</button>
+                            <button class="exam-filter-btn px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full" data-filter="priority">Prioritari</button>
+                        </div>
+                        <div class="relative">
+                            <input type="text" id="exam-search" placeholder="Cerca esame..." class="w-full md:w-64 p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista Esami -->
+                    <div id="exams-list">
+                        <div class="empty-state">
+                            <i class="fas fa-book empty-state-icon"></i>
+                            <p class="text-gray-500">Nessun esame aggiunto</p>
+                            <p class="text-sm text-gray-400 mt-2">Clicca su "Nuovo Esame" per iniziare</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Libretto Voti -->
+            <section id="grades" class="tab-section hidden">
+                <div class="glass-card p-6 mb-6">
+                    <h2 class="text-xl font-bold gradient-text mb-6">Libretto Voti</h2>
+                    
+                    <!-- Riepilogo -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600">Media Ponderata</p>
+                                    <p id="weighted-average" class="text-3xl font-bold gradient-text">--</p>
+                                </div>
+                                <i class="fas fa-chart-line text-3xl text-emerald-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600">CFU Totali</p>
+                                    <p id="total-cfu" class="text-3xl font-bold gradient-text">0</p>
+                                </div>
+                                <i class="fas fa-award text-3xl text-cyan-400"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600">Esami Superati</p>
+                                    <p id="exams-passed" class="text-3xl font-bold gradient-text">0</p>
+                                </div>
+                                <i class="fas fa-graduation-cap text-3xl text-purple-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabella esami superati -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-bold text-gray-700">Esame</th>
+                                    <th class="text-left py-3 px-4 font-bold text-gray-700">Data</th>
+                                    <th class="text-left py-3 px-4 font-bold text-gray-700">CFU</th>
+                                    <th class="text-left py-3 px-4 font-bold text-gray-700">Voto</th>
+                                    <th class="text-left py-3 px-4 font-bold text-gray-700">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-table-body">
+                                <!-- Righe verranno aggiunte dinamicamente -->
+                                <tr>
+                                    <td colspan="5" class="empty-state">
+                                        <i class="fas fa-inbox empty-state-icon"></i>
+                                        <p>Nessun esame superato ancora</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Simulatore Laurea -->
+            <section id="simulator" class="tab-section hidden">
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold gradient-text mb-6">Simulatore Laurea</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Calcolo Voto di Laurea -->
+                        <div>
+                            <h3 class="text-lg font-bold mb-4 gradient-text">Calcolo Voto di Partenza</h3>
+                            <div class="mb-6">
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium">Media Ponderata Attuale</span>
+                                    <span id="current-average" class="font-bold text-purple-600">--</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium">CFU Acquisiti</span>
+                                    <span id="current-cfu" class="font-bold text-purple-600">0</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium">CFU Mancanti</span>
+                                    <span id="remaining-cfu" class="font-bold text-purple-600">--</span>
+                                </div>
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="font-medium">Voto di Partenza</span>
+                                        <span id="starting-grade" class="font-bold text-green-600 text-xl">--/110</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Calcolato come: (Media * 110) / 30</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Calcolo Target -->
+                            <div class="mt-8">
+                                <h3 class="text-lg font-bold mb-4 gradient-text">Calcola Target</h3>
+                                <p class="text-gray-600 mb-4">Inserisci il voto che desideri raggiungere per sapere quale media devi avere nei prossimi esami</p>
+                                <div class="flex items-end space-x-4">
+                                    <div class="flex-1">
+                                        <label class="block text-gray-700 mb-2">Voto Desiderato (su 110)</label>
+                                        <input type="number" id="target-grade" min="66" max="110" value="100" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-transparent">
+                                    </div>
+                                    <button id="calculate-target" class="btn-primary px-6 py-3">Calcola</button>
+                                </div>
+                                <div id="target-result" class="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl hidden">
+                                    <p class="font-bold text-green-700 mb-1" id="target-message"></p>
+                                    <p class="text-sm text-green-600" id="target-details"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Grafico e spiegazione -->
+                        <div>
+                            <h3 class="text-lg font-bold mb-4 gradient-text">Come funziona il calcolo</h3>
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl mb-6">
+                                <p class="text-gray-700 mb-3">Il voto di laurea si calcola tramite media ponderata:</p>
+                                <div class="bg-white p-4 rounded-lg mb-4">
+                                    <p class="font-mono text-sm">Voto = (Media Ponderata * 110) / 30</p>
+                                </div>
+                                <p class="text-gray-700 mb-3">Dove la media ponderata è:</p>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="font-mono text-sm">Media = Σ(Voto * CFU) / Σ(CFU)</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Grafico progresso -->
+                            <div class="mt-8">
+                                <h3 class="text-lg font-bold mb-4 gradient-text">Progresso Laurea</h3>
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">CFU Completati</span>
+                                        <span id="cfu-progress-text" class="font-bold">0/180</span>
+                                    </div>
+                                    <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="cfu-progress-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-6">
+                                    <div class="inline-flex items-center space-x-2 px-4 py-2 bg-white rounded-full shadow">
+                                        <i class="fas fa-university text-purple-500"></i>
+                                        <span class="font-medium">Laurea Triennale: 180 CFU</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wellness -->
+            <section id="wellness" class="tab-section hidden">
+                <div class="glass-card p-6 mb-6">
+                    <h2 class="text-xl font-bold gradient-text mb-6">Area Wellness</h2>
+                    <p class="text-gray-600 mb-8">Prenditi cura di te stesso durante il percorso universitario. Il benessere mentale è importante quanto lo studio.</p>
+                    
+                    <!-- Solo Consigli per lo Studio -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 gradient-text">Consigli per lo Studio</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                                <i class="fas fa-clock text-blue-500 mt-1 mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1">Pianifica le pause</h4>
+                                    <p class="text-gray-600 text-sm">Usa la tecnica Pomodoro: 25 minuti di studio intenso seguito da 5 minuti di pausa.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                                <i class="fas fa-bed text-green-500 mt-1 mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1">Dormi a sufficienza</h4>
+                                    <p class="text-gray-600 text-sm">7-8 ore di sonno migliorano la memoria e la concentrazione.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                                <i class="fas fa-water text-purple-500 mt-1 mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1">Mantieniti idratato</h4>
+                                    <p class="text-gray-600 text-sm">Bere acqua regolarmente migliora le funzioni cognitive e riduce la fatica.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl">
+                                <i class="fas fa-walking text-yellow-500 mt-1 mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1">Fai movimento</h4>
+                                    <p class="text-gray-600 text-sm">Una breve passeggiata può aumentare la creatività e ridurre lo stress.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start p-4 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl">
+                                <i class="fas fa-utensils text-red-500 mt-1 mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1">Alimentazione bilanciata</h4>
+                                    <p class="text-gray-600 text-sm">Mangiare cibi nutrienti aiuta a mantenere alti i livelli di energia durante lo studio.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl">
+                                <i class="fas fa-brain text-indigo-500 mt-1 mr-4"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1">Varie le attività</h4>
+                                    <p class="text-gray-600 text-sm">Alternare diverse materie di studio aiuta a mantenere alta la concentrazione.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Impostazioni -->
+            <section id="settings" class="tab-section hidden">
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold gradient-text mb-6">Impostazioni & Dati</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Impostazioni Utente -->
+                        <div>
+                            <h3 class="text-lg font-bold mb-4 gradient-text">Preferenze Personali</h3>
+                            
+                            <div class="space-y-6">
+                                <!-- Preferenza Oraria -->
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-3">Preferenza Oraria</h4>
+                                    <div class="flex space-x-4">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="time-preference" value="early" class="mr-2">
+                                            <span>Early Bird (mattiniero)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="time-preference" value="night" class="mr-2">
+                                            <span>Night Owl (nottambulo)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Percentuale Tempo Ripasso -->
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-3">Tempo Cuscinetto Ripasso</h4>
+                                    <div class="flex items-center space-x-4">
+                                        <input type="range" id="review-percentage" min="20" max="50" value="35" class="flex-1">
+                                        <span id="review-percentage-value" class="font-bold text-purple-600">35%</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">Percentuale del tempo totale dedicata al ripasso</p>
+                                </div>
+                                
+                                <!-- Notifiche Pomodoro -->
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-3">Notifiche Audio Pomodoro</h4>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="pomodoro-sound" class="mr-2 rounded" checked>
+                                        <span>Attiva suono alla fine di ogni sessione</span>
+                                    </label>
+                                </div>
+                                
+                                <button id="save-settings" class="btn-primary mt-4">Salva Impostazioni</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Gestione Dati -->
+                        <div>
+                            <h3 class="text-lg font-bold mb-4 gradient-text">Gestione Dati e Backup</h3>
+                            <p class="text-gray-600 mb-6">Esporta i tuoi dati per fare un backup o importali per ripristinarli su un altro dispositivo.</p>
+                            
+                            <div class="space-y-6">
+                                <!-- Esporta Backup -->
+                                <div class="p-5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                                    <h4 class="font-bold text-gray-700 mb-2">Esporta Backup</h4>
+                                    <p class="text-gray-600 text-sm mb-4">Scarica un file JSON contenente tutti i tuoi dati (esami, voti, impostazioni)</p>
+                                    <button id="export-backup" class="btn-primary">
+                                        <i class="fas fa-download mr-2"></i> Esporta Backup
+                                    </button>
+                                </div>
+                                
+                                <!-- Importa Backup -->
+                                <div class="p-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                                    <h4 class="font-bold text-gray-700 mb-2">Importa Backup</h4>
+                                    <p class="text-gray-600 text-sm mb-4">Carica un file JSON per ripristinare i tuoi dati. ATTENZIONE: Sovrascriverà tutti i dati attuali!</p>
+                                    <div class="flex items-center">
+                                        <input type="file" id="import-file" accept=".json" class="hidden">
+                                        <button id="import-backup" class="btn-primary mr-4">
+                                            <i class="fas fa-upload mr-2"></i> Scegli File
+                                        </button>
+                                        <span id="import-file-name" class="text-sm text-gray-500">Nessun file selezionato</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Reset Dati -->
+                                <div class="p-5 bg-gradient-to-r from-red-50 to-rose-50 rounded-xl">
+                                    <h4 class="font-bold text-gray-700 mb-2">Reset Dati</h4>
+                                    <p class="text-gray-600 text-sm mb-4">Elimina tutti i dati salvati nell'app. Attenzione: questa operazione non può essere annullata!</p>
+                                    <button id="reset-data" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt mr-2"></i> Reset Tutti i Dati
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-gray-500 text-sm">
+        <p>UNIFRA - Gestione Universitaria Intelligente &copy; 2023 | Made with <i class="fas fa-heart text-pink-500"></i> per Francesca</p>
+    </footer>
+
+    <script>
+        // ============================================
+        // VARIABILI GLOBALI E INIZIALIZZAZIONE
+        // ============================================
+        
+        // Stato dell'applicazione
+        const state = {
+            exams: [],
+            passedExams: [],
+            settings: {
+                timePreference: 'early',
+                reviewPercentage: 35,
+                pomodoroSound: true
+            },
+            waterTracker: {
+                count: 0,
+                lastReset: null
+            },
+            pomodoro: {
+                isRunning: false,
+                isWorkTime: true,
+                workTime: 25 * 60,
+                breakTime: 5 * 60,
+                timeLeft: 25 * 60,
+                timerId: null
+            },
+            dailyNotes: '',
+            completedTasks: []
+        };
+
+        // Costanti
+        const TOTAL_CFU = 180;
+
+        // ============================================
+        // FUNZIONI UTILITY
+        // ============================================
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        function showModal(title, message, showInput = false, confirmCallback = null) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const modalCancel = document.getElementById('modal-cancel');
+            const modalConfirm = document.getElementById('modal-confirm');
+            
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            
+            modal.style.display = 'flex';
+            
+            // Rimuovi event listener precedenti
+            const newCancelBtn = modalCancel.cloneNode(true);
+            const newConfirmBtn = modalConfirm.cloneNode(true);
+            
+            modalCancel.parentNode.replaceChild(newCancelBtn, modalCancel);
+            modalConfirm.parentNode.replaceChild(newConfirmBtn, modalConfirm);
+            
+            // Aggiungi event listener nuovi
+            document.getElementById('modal-cancel').addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            document.getElementById('modal-confirm').addEventListener('click', () => {
+                if (confirmCallback) {
+                    if (showInput) {
+                        const grade = prompt('Inserisci il voto (18-30):');
+                        if (grade) {
+                            confirmCallback(grade);
+                        }
+                    } else {
+                        confirmCallback();
+                    }
+                }
+                modal.style.display = 'none';
+            });
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('it-IT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+        
+        function saveToLocalStorage() {
+            const data = {
+                exams: state.exams,
+                passedExams: state.passedExams,
+                settings: state.settings,
+                waterTracker: state.waterTracker,
+                dailyNotes: state.dailyNotes,
+                completedTasks: state.completedTasks
+            };
+            localStorage.setItem('unifra-data', JSON.stringify(data));
+        }
+        
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('unifra-data');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                state.exams = data.exams || [];
+                state.passedExams = data.passedExams || [];
+                state.settings = data.settings || {
+                    timePreference: 'early',
+                    reviewPercentage: 35,
+                    pomodoroSound: true
+                };
+                state.waterTracker = data.waterTracker || { count: 0, lastReset: null };
+                state.dailyNotes = data.dailyNotes || '';
+                state.completedTasks = data.completedTasks || [];
+            }
+        }
+        
+        function calculateDaysUntil(examDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const exam = new Date(examDate);
+            exam.setHours(0, 0, 0, 0);
+            
+            const diffTime = exam - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays > 0 ? diffDays : 0;
+        }
+
+        // ============================================
+        // INIZIALIZZAZIONE APP
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromLocalStorage();
+            initApp();
+        });
+        
+        function initApp() {
+            initNavigation();
+            initExamForm();
+            initPomodoro();
+            initWaterTracker();
+            initSettings();
+            initBackup();
+            initFilters();
+            initTaskActions();
+            
+            showSection('dashboard');
+            updateDashboard();
+            updateTodayDate();
+            
+            setTimeout(() => {
+                showToast("Benvenuto in UNIFRA! 💜 Iniziamo a organizzare il tuo studio.");
+            }, 1000);
+            
+            checkWaterReset();
+            updateSmartSuggestions();
+        }
+
+        // ============================================
+        // NAVIGAZIONE
+        // ============================================
+        
+        function initNavigation() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('tab-active');
+                        btn.classList.add('text-gray-600');
+                    });
+                    
+                    this.classList.add('tab-active');
+                    this.classList.remove('text-gray-600');
+                    
+                    showSection(tabId);
+                });
+            });
+            
+            document.getElementById('add-exam-btn').addEventListener('click', function() {
+                document.querySelector('[data-tab="exams"]').click();
+                setTimeout(() => {
+                    document.getElementById('new-exam-btn').click();
+                }, 100);
+            });
+            
+            document.getElementById('add-exam-empty-btn').addEventListener('click', function() {
+                document.querySelector('[data-tab="exams"]').click();
+                setTimeout(() => {
+                    document.getElementById('new-exam-btn').click();
+                }, 100);
+            });
+            
+            document.getElementById('refresh-tasks').addEventListener('click', function() {
+                updateDashboard();
+                showToast("Tasks aggiornati! 🔄");
+            });
+        }
+        
+        function showSection(sectionId) {
+            document.querySelectorAll('.tab-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.remove('hidden');
+            }
+            
+            switch(sectionId) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'tasks':
+                    updateTasksView();
+                    break;
+                case 'exams':
+                    renderExamsList();
+                    break;
+                case 'grades':
+                    updateGradesView();
+                    break;
+                case 'simulator':
+                    updateSimulator();
+                    break;
+                case 'settings':
+                    updateSettingsView();
+                    break;
+            }
+        }
+
+        // ============================================
+        // GESTIONE ESAMI
+        // ============================================
+        
+        function initExamForm() {
+            document.getElementById('new-exam-btn').addEventListener('click', function() {
+                resetExamForm();
+                document.getElementById('exam-form-container').classList.remove('hidden');
+                document.getElementById('form-title').textContent = 'Aggiungi Nuovo Esame';
+                
+                const today = new Date();
+                const minDate = new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0];
+                document.getElementById('exam-date').min = minDate;
+                document.getElementById('exam-date').value = minDate;
+                
+                document.getElementById('exam-form-container').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('cancel-exam').addEventListener('click', function() {
+                document.getElementById('exam-form-container').classList.add('hidden');
+            });
+            
+            document.getElementById('exam-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveExam();
+            });
+            
+            document.getElementById('decrease-pages').addEventListener('click', function() {
+                const input = document.getElementById('exam-completed');
+                let value = parseInt(input.value) || 0;
+                if (value > 0) {
+                    input.value = value - 1;
+                }
+            });
+            
+            document.getElementById('increase-pages').addEventListener('click', function() {
+                const input = document.getElementById('exam-completed');
+                let value = parseInt(input.value) || 0;
+                input.value = value + 1;
+            });
+        }
+        
+        function resetExamForm() {
+            document.getElementById('exam-form').reset();
+            document.getElementById('exam-id').value = '';
+            document.getElementById('exam-completed').value = '0';
+            document.getElementById('exam-priority').value = 'medium';
+            document.getElementById('exam-type').value = 'Intero';
+        }
+        
+        function saveExam() {
+            const examId = document.getElementById('exam-id').value;
+            const exam = {
+                id: examId || Date.now().toString(),
+                name: document.getElementById('exam-name').value.trim(),
+                date: document.getElementById('exam-date').value,
+                cfu: parseInt(document.getElementById('exam-cfu').value) || 6,
+                totalPages: parseInt(document.getElementById('exam-pages').value) || 100,
+                completedPages: parseInt(document.getElementById('exam-completed').value) || 0,
+                materials: document.getElementById('exam-materials').value.trim(),
+                priority: document.getElementById('exam-priority').value,
+                type: document.getElementById('exam-type').value,
+                reward: document.getElementById('exam-reward-input').value.trim(),
+                isPassed: false,
+                grade: null,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (!exam.name || !exam.date) {
+                showToast('Compila tutti i campi obbligatori! ⚠️');
+                return;
+            }
+            
+            const existingIndex = state.exams.findIndex(e => e.id === exam.id);
+            
+            if (existingIndex >= 0) {
+                state.exams[existingIndex] = exam;
+                showToast('Esame aggiornato con successo! 📚');
+            } else {
+                state.exams.push(exam);
+                showToast('Esame aggiunto con successo! 🎉');
+            }
+            
+            saveToLocalStorage();
+            document.getElementById('exam-form-container').classList.add('hidden');
+            
+            renderExamsList();
+            updateDashboard();
+            updateTasksView();
+            
+            if (exam.reward) {
+                document.getElementById('reward-text').textContent = exam.reward;
+            }
+        }
+        
+        function editExam(examId) {
+            const exam = state.exams.find(e => e.id === examId);
+            if (!exam) return;
+            
+            document.getElementById('exam-id').value = exam.id;
+            document.getElementById('exam-name').value = exam.name;
+            document.getElementById('exam-date').value = exam.date;
+            document.getElementById('exam-cfu').value = exam.cfu;
+            document.getElementById('exam-pages').value = exam.totalPages;
+            document.getElementById('exam-completed').value = exam.completedPages;
+            document.getElementById('exam-materials').value = exam.materials || '';
+            document.getElementById('exam-priority').value = exam.priority;
+            document.getElementById('exam-type').value = exam.type;
+            document.getElementById('exam-reward-input').value = exam.reward || '';
+            
+            document.getElementById('exam-form-container').classList.remove('hidden');
+            document.getElementById('form-title').textContent = 'Modifica Esame';
+            
+            document.getElementById('exam-form-container').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function deleteExam(examId) {
+            showModal('Conferma Eliminazione', 'Sei sicuro di voler eliminare questo esame? Questa azione non può essere annullata.', false, () => {
+                const examIndex = state.exams.findIndex(e => e.id === examId);
+                if (examIndex === -1) return;
+                
+                const examName = state.exams[examIndex].name;
+                state.exams.splice(examIndex, 1);
+                
+                saveToLocalStorage();
+                renderExamsList();
+                updateDashboard();
+                updateTasksView();
+                
+                showToast(`Esame "${examName}" eliminato con successo`);
+            });
+        }
+        
+        function markExamPassed(examId) {
+            showModal('Esame Superato', 'Inserisci il voto ottenuto per questo esame:', true, (grade) => {
+                if (!grade || grade < 18 || grade > 30) {
+                    showToast('Voto non valido! Inserisci un voto tra 18 e 30.');
+                    return;
+                }
+                
+                const examIndex = state.exams.findIndex(e => e.id === examId);
+                if (examIndex === -1) return;
+                
+                const exam = state.exams[examIndex];
+                exam.isPassed = true;
+                exam.grade = parseInt(grade);
+                exam.passedDate = new Date().toISOString();
+                
+                state.passedExams.push(exam);
+                state.exams.splice(examIndex, 1);
+                
+                saveToLocalStorage();
+                renderExamsList();
+                updateDashboard();
+                updateTasksView();
+                updateGradesView();
+                updateSimulator();
+                
+                showToast(`Congratulazioni! 🎉 Hai superato ${exam.name} con voto ${grade}/30`);
+                
+                if (exam.reward) {
+                    setTimeout(() => {
+                        showModal('Premio Sbloccato!', `Hai guadagnato il tuo premio: "${exam.reward}". Goditelo! 🎁`);
+                    }, 1000);
+                }
+            });
+        }
+        
+        function incrementProgress(examId, pages) {
+            const exam = state.exams.find(e => e.id === examId);
+            if (!exam) return;
+            
+            exam.completedPages += pages;
+            
+            saveToLocalStorage();
+            updateDashboard();
+            renderExamsList();
+            updateTasksView();
+            
+            const isAhead = exam.completedPages > exam.totalPages;
+            const pagesAhead = exam.completedPages - exam.totalPages;
+            
+            if (isAhead && pagesAhead > 0) {
+                showToast(`Fantastico! 🎯 Sei in anticipo di ${pagesAhead} pagine su ${exam.name}.`);
+            } else if (exam.completedPages >= exam.totalPages) {
+                showToast(`Complimenti! 🎉 Hai completato tutte le pagine di ${exam.name}.`);
+            } else {
+                showToast(`Aggiunte ${pages} pagine a ${exam.name}! 📘`);
+            }
+        }
+        
+        function quickAddPages(examId, pages) {
+            incrementProgress(examId, pages);
+        }
+
+        // ============================================
+        // ALGORITMO DI PIANIFICAZIONE
+        // ============================================
+        
+        function getStudyPhase(daysUntil, totalPages, completedPages) {
+            if (daysUntil <= 0) {
+                return {
+                    phase: 'ESAME',
+                    message: 'Oggi è il giorno dell\'esame! In bocca al lupo! 🍀',
+                    pagesToday: 0,
+                    reviewDays: 0,
+                    reviewPercent: 0
+                };
+            }
+            
+            const remainingPages = totalPages - completedPages;
+            const isAhead = completedPages > totalPages;
+            const reviewPercentage = state.settings.reviewPercentage / 100;
+            
+            if (isAhead) {
+                const pagesAhead = completedPages - totalPages;
+                return {
+                    phase: 'RIPASSO',
+                    message: `Fantastico! 🎯 Sei in anticipo di ${pagesAhead} pagine.`,
+                    pagesToday: 0,
+                    reviewDays: daysUntil,
+                    reviewPercent: 1.0
+                };
+            }
+            
+            if (remainingPages <= 0) {
+                return {
+                    phase: 'RIPASSO',
+                    message: 'Hai completato tutte le pagine! Dedica questo tempo al ripasso.',
+                    pagesToday: 0,
+                    reviewDays: daysUntil,
+                    reviewPercent: 1.0
+                };
+            }
+            
+            const reviewDays = Math.max(1, Math.ceil(daysUntil * reviewPercentage));
+            const studyDays = daysUntil - reviewDays;
+            
+            if (studyDays > 0) {
+                const dailyPages = Math.ceil(remainingPages / studyDays);
+                return {
+                    phase: 'STUDIO',
+                    message: `Fase STUDIO: ${dailyPages} pagine/giorno per ${studyDays} giorni`,
+                    pagesToday: dailyPages,
+                    reviewDays,
+                    reviewPercent: reviewPercentage
+                };
+            } else {
+                const dailyPages = Math.ceil(remainingPages / daysUntil);
+                return {
+                    phase: 'RIPASSO',
+                    message: `Sei in ritardo! 😅 ${dailyPages} pagine/giorno per finire in tempo`,
+                    pagesToday: dailyPages,
+                    reviewDays: 0,
+                    reviewPercent: 0
+                };
+            }
+        }
+        
+        function calculateTodayTasks() {
+            let totalPagesToday = 0;
+            let totalTasks = 0;
+            const todayTasks = [];
+            
+            state.exams.forEach(exam => {
+                const daysUntil = calculateDaysUntil(exam.date);
+                const phase = getStudyPhase(daysUntil, exam.totalPages, exam.completedPages);
+                
+                if (phase.pagesToday > 0) {
+                    totalPagesToday += phase.pagesToday;
+                    totalTasks++;
+                    
+                    todayTasks.push({
+                        examId: exam.id,
+                        exam: exam.name,
+                        pages: phase.pagesToday,
+                        phase: phase.phase,
+                        priority: exam.priority,
+                        daysUntil: daysUntil,
+                        message: phase.message,
+                        reviewDays: phase.reviewDays,
+                        isCompleted: state.completedTasks.includes(`${exam.id}-${new Date().toDateString()}`)
+                    });
+                }
+            });
+            
+            todayTasks.sort((a, b) => {
+                const priorityOrder = { high: 1, medium: 2, low: 3 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[a.priority] - priorityOrder[b.priority];
+                }
+                return a.daysUntil - b.daysUntil;
+            });
+            
+            return { totalPagesToday, totalTasks, todayTasks };
+        }
+
+        // ============================================
+        // FILTRI E INTERFACCIA
+        // ============================================
+        
+        function initFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-purple-100', 'text-purple-700');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    this.classList.add('active', 'bg-purple-100', 'text-purple-700');
+                    this.classList.remove('bg-gray-100', 'text-gray-700');
+                    
+                    updateDashboardTasks(this.dataset.filter);
+                });
+            });
+            
+            document.querySelectorAll('.exam-filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.exam-filter-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-purple-100', 'text-purple-700');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    this.classList.add('active', 'bg-purple-100', 'text-purple-700');
+                    this.classList.remove('bg-gray-100', 'text-gray-700');
+                    
+                    renderExamsList();
+                });
+            });
+            
+            const examSearch = document.getElementById('exam-search');
+            if (examSearch) {
+                examSearch.addEventListener('input', function() {
+                    renderExamsList();
+                });
+            }
+        }
+        
+        function initTaskActions() {
+            document.getElementById('mark-all-tasks')?.addEventListener('click', function() {
+                const { todayTasks } = calculateTodayTasks();
+                todayTasks.forEach(task => {
+                    if (!task.isCompleted) {
+                        state.completedTasks.push(`${task.examId}-${new Date().toDateString()}`);
+                    }
+                });
+                saveToLocalStorage();
+                updateDashboard();
+                updateTasksView();
+                showToast('Tutti i tasks completati! ✅');
+            });
+            
+            document.getElementById('print-tasks')?.addEventListener('click', function() {
+                window.print();
+            });
+            
+            document.getElementById('save-notes')?.addEventListener('click', function() {
+                state.dailyNotes = document.getElementById('daily-notes').value;
+                saveToLocalStorage();
+                showToast('Note salvate! 📝');
+            });
+        }
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        
+        function updateDashboard() {
+            const { totalPagesToday, totalTasks, todayTasks } = calculateTodayTasks();
+            const completedTasksCount = todayTasks.filter(task => 
+                state.completedTasks.includes(`${task.examId}-${new Date().toDateString()}`)
+            ).length;
+            
+            document.getElementById('active-exams-count').textContent = state.exams.length;
+            document.getElementById('today-tasks-count').textContent = `${completedTasksCount}/${totalTasks}`;
+            document.getElementById('cushion-percent-display').textContent = `${state.settings.reviewPercentage}%`;
+            
+            const timePref = state.settings.timePreference === 'early' ? 'Early Bird 🐦' : 'Night Owl 🦉';
+            document.getElementById('time-preference').textContent = timePref;
+            
+            updateDashboardTasks('all');
+            updateNextExamCountdown();
+            updateActiveExams();
+            updateSmartSuggestions();
+        }
+        
+        function updateDashboardTasks(filter = 'all') {
+            const { todayTasks } = calculateTodayTasks();
+            const container = document.getElementById('today-tasks-container');
+            
+            if (todayTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open empty-state-icon"></i>
+                        <p class="text-gray-500">Nessun task per oggi</p>
+                        <p class="text-sm text-gray-400 mt-2">Aggiungi un esame per generare i tasks</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let filteredTasks = todayTasks;
+            if (filter === 'study') {
+                filteredTasks = todayTasks.filter(task => task.phase === 'STUDIO');
+            } else if (filter === 'review') {
+                filteredTasks = todayTasks.filter(task => task.phase === 'RIPASSO');
+            } else if (filter === 'priority') {
+                filteredTasks = todayTasks.filter(task => task.priority === 'high');
+            }
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-filter empty-state-icon"></i>
+                        <p class="text-gray-500">Nessun task corrisponde al filtro</p>
+                        <p class="text-sm text-gray-400 mt-2">Prova con un filtro diverso</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tasksHTML = '';
+            filteredTasks.forEach(task => {
+                const priorityColor = task.priority === 'high' ? 'text-red-500' : 
+                                   task.priority === 'medium' ? 'text-yellow-500' : 'text-green-500';
+                const isCompleted = task.isCompleted;
+                
+                tasksHTML += `
+                    <div class="task-card p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 ${isCompleted ? 'task-completed' : ''}" 
+                         data-task-id="${task.examId}-${new Date().toDateString()}"
+                         data-exam-id="${task.examId}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full ${task.phase === 'STUDIO' ? 'bg-purple-100' : 'bg-pink-100'} flex items-center justify-center mr-4">
+                                    <i class="fas ${task.phase === 'STUDIO' ? 'fa-book' : 'fa-redo'} ${task.phase === 'STUDIO' ? 'text-purple-600' : 'text-pink-600'}"></i>
+                                </div>
+                                <div>
+                                    <h4 class="task-title font-bold">${task.exam}</h4>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <span class="phase-tag ${task.phase === 'STUDIO' ? 'study-phase' : 'review-phase'}">${task.phase}</span>
+                                        <span class="text-xs ${priorityColor}">
+                                            <i class="fas fa-flag mr-1"></i>${task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Bassa'}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            <i class="far fa-clock mr-1"></i>${task.daysUntil} giorni
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="completeTask('${task.examId}-${new Date().toDateString()}')" class="p-2 ${isCompleted ? 'text-green-500 bg-green-50' : 'text-gray-400 hover:text-green-500 hover:bg-green-50'} rounded-lg transition-colors">
+                                <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-check'}"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-600 mb-1">${task.message}</p>
+                                ${task.reviewDays > 0 ? `
+                                    <p class="text-xs text-blue-600">
+                                        <i class="fas fa-clock mr-1"></i> ${task.reviewDays} giorni di ripasso previsti
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold gradient-text">${task.pages}</div>
+                                <p class="text-sm text-gray-500">pagine</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = tasksHTML;
+        }
+        
+        function completeTask(taskId) {
+            if (!state.completedTasks.includes(taskId)) {
+                state.completedTasks.push(taskId);
+                saveToLocalStorage();
+                updateDashboard();
+                updateTasksView();
+                
+                const examId = taskId.split('-')[0];
+                const exam = state.exams.find(e => e.id === examId);
+                if (exam) {
+                    showToast(`Task completato per ${exam.name}! ✅`);
+                }
+            }
+        }
+        
+        function updateNextExamCountdown() {
+            if (state.exams.length === 0) {
+                document.getElementById('countdown-days').textContent = '--';
+                document.getElementById('next-exam-name').textContent = 'Nessun esame in programma';
+                document.getElementById('exam-phase-info').classList.add('hidden');
+                return;
+            }
+            
+            const nextExam = [...state.exams].sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+            const daysUntil = calculateDaysUntil(nextExam.date);
+            const phase = getStudyPhase(daysUntil, nextExam.totalPages, nextExam.completedPages);
+            
+            document.getElementById('countdown-days').textContent = daysUntil;
+            document.getElementById('next-exam-name').textContent = nextExam.name;
+            
+            const examPhaseInfo = document.getElementById('exam-phase-info');
+            const phaseDetails = document.getElementById('phase-details');
+            const reviewDaysInfo = document.getElementById('review-days-info');
+            
+            phaseDetails.textContent = phase.message;
+            if (phase.reviewDays > 0) {
+                reviewDaysInfo.textContent = `${phase.reviewDays} giorni di ripasso previsti (${Math.round(phase.reviewPercent * 100)}% del tempo)`;
+                examPhaseInfo.classList.remove('hidden');
+            } else {
+                examPhaseInfo.classList.add('hidden');
+            }
+            
+            if (nextExam.reward) {
+                document.getElementById('reward-text').textContent = nextExam.reward;
+            }
+        }
+        
+        function updateActiveExams() {
+            const activeExamsContainer = document.getElementById('active-exams');
+            
+            if (state.exams.length === 0) {
+                activeExamsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-plus-circle empty-state-icon"></i>
+                        <p class="text-gray-500">Nessun esame attivo</p>
+                        <button id="add-exam-empty-btn" class="btn-primary mt-4">Aggiungi Esame</button>
+                    </div>
+                `;
+                
+                document.getElementById('add-exam-empty-btn').addEventListener('click', function() {
+                    document.querySelector('[data-tab="exams"]').click();
+                    setTimeout(() => {
+                        document.getElementById('new-exam-btn').click();
+                    }, 100);
+                });
+                return;
+            }
+            
+            const examsToShow = [...state.exams]
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .slice(0, 2);
+            
+            let html = '<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">';
+            
+            examsToShow.forEach(exam => {
+                const daysUntil = calculateDaysUntil(exam.date);
+                const phase = getStudyPhase(daysUntil, exam.totalPages, exam.completedPages);
+                const progressPercent = Math.min(100, Math.round((exam.completedPages / exam.totalPages) * 100));
+                const isAhead = exam.completedPages > exam.totalPages;
+                
+                html += `
+                    <div class="glass-card p-6 task-card hover:shadow-xl transition-all duration-300" data-exam-id="${exam.id}">
+                        <div class="flex justify-between items-start mb-5">
+                            <div class="flex-1 pr-4">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h3 class="font-bold text-xl mb-2 text-gray-800">${exam.name}</h3>
+                                        <div class="flex items-center space-x-3 mb-3">
+                                            <span class="phase-tag ${phase.phase === 'STUDIO' ? 'study-phase' : phase.phase === 'RIPASSO' ? 'review-phase' : 'exam-phase'} text-sm font-medium">
+                                                <i class="fas ${phase.phase === 'STUDIO' ? 'fa-book' : phase.phase === 'RIPASSO' ? 'fa-redo' : 'fa-graduation-cap'} mr-1"></i> ${phase.phase}
+                                            </span>
+                                            <span class="text-sm px-3 py-1 rounded-full ${daysUntil < 7 ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-green-100 text-green-700 border border-green-200'} font-medium">
+                                                <i class="far fa-calendar-alt mr-1"></i> ${daysUntil} giorni
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="incrementProgress('${exam.id}', 1)" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Aggiungi 1 pagina">
+                                            <i class="fas fa-plus text-sm"></i>
+                                        </button>
+                                        <button onclick="incrementProgress('${exam.id}', 5)" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Aggiungi 5 pagine">
+                                            <i class="fas fa-plus-circle text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-5">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-base font-semibold text-gray-700">Progresso</span>
+                                        <span class="text-base font-bold ${isAhead ? 'text-green-600' : progressPercent < 50 ? 'text-yellow-600' : 'text-blue-600'}">
+                                            ${progressPercent}% ${isAhead ? '🎯' : ''}
+                                        </span>
+                                    </div>
+                                    <div class="h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
+                                        <div class="h-full rounded-full ${isAhead ? 'progress-ahead' : 'bg-gradient-to-r from-purple-500 to-pink-500'} transition-all duration-700" style="width: ${Math.min(100, progressPercent)}%"></div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="text-center p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-100">
+                                            <div class="text-lg font-bold text-gray-800">${exam.completedPages}/${exam.totalPages}</div>
+                                            <div class="text-xs text-gray-600">pagine</div>
+                                        </div>
+                                        <div class="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-100">
+                                            <div class="text-lg font-bold text-blue-700">${phase.pagesToday || 0}</div>
+                                            <div class="text-xs text-blue-600">pz/giorno</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-5 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                                    <div class="flex items-start">
+                                        <div class="mr-3 mt-1">
+                                            <i class="fas ${phase.phase === 'STUDIO' ? 'fa-book-reader text-purple-600' : phase.phase === 'RIPASSO' ? 'fa-redo-alt text-pink-600' : 'fa-graduation-cap text-orange-600'}"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-800 mb-1">${phase.message}</p>
+                                            ${phase.reviewDays > 0 ? 
+                                                `<div class="flex items-center justify-between mt-3 pt-3 border-t border-purple-200">
+                                                    <div class="flex items-center text-sm text-purple-700">
+                                                        <i class="fas fa-clock mr-2"></i>
+                                                        <span>${phase.reviewDays} giorni di ripasso</span>
+                                                    </div>
+                                                    <div class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold">
+                                                        ${Math.round((phase.reviewPercent || 0) * 100)}% del tempo
+                                                    </div>
+                                                </div>` : 
+                                                '<div class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i> Nessun periodo di ripasso previsto</div>'
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-3">
+                                    <button onclick="incrementProgress('${exam.id}', 1)" class="px-4 py-3 text-sm bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-lg hover:from-gray-100 hover:to-gray-200 hover:shadow-md transition-all duration-200 flex flex-col items-center justify-center border border-gray-200">
+                                        <i class="fas fa-plus mb-1 text-gray-600"></i>
+                                        <span class="font-medium">+1 Pagina</span>
+                                    </button>
+                                    <button onclick="incrementProgress('${exam.id}', 5)" class="px-4 py-3 text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 hover:shadow-md transition-all duration-200 flex flex-col items-center justify-center shadow-sm">
+                                        <i class="fas fa-bolt mb-1"></i>
+                                        <span class="font-medium">+5 Pagine</span>
+                                    </button>
+                                    <button onclick="markExamPassed('${exam.id}')" class="px-4 py-3 text-sm bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 hover:shadow-md transition-all duration-200 flex flex-col items-center justify-center shadow-sm">
+                                        <i class="fas fa-check mb-1"></i>
+                                        <span class="font-medium">Superato</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
+                                    <div class="flex justify-between">
+                                        <span><i class="fas fa-award mr-1"></i> ${exam.cfu} CFU</span>
+                                        <span><i class="fas ${exam.priority === 'high' ? 'fa-exclamation-circle text-red-500' : exam.priority === 'medium' ? 'fa-exclamation text-yellow-500' : 'fa-arrow-down text-green-500'} mr-1"></i> Priorità ${exam.priority === 'high' ? 'Alta' : exam.priority === 'medium' ? 'Media' : 'Bassa'}</span>
+                                        <span><i class="fas fa-calendar-day mr-1"></i> ${formatDate(exam.date)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (state.exams.length > 2) {
+                html += `
+                    <div class="glass-card p-6 flex items-center justify-center task-card hover:shadow-lg transition-all duration-300" onclick="document.querySelector('[data-tab=\\'exams\\']').click()">
+                        <div class="text-center cursor-pointer p-4">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mx-auto mb-4 border-4 border-white shadow">
+                                <i class="fas fa-ellipsis-h text-2xl text-purple-500"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-700 mb-1">+${state.exams.length - 2} altri esami</h3>
+                            <p class="text-sm text-gray-500 mb-4">Continua a studiare! Hai ${state.exams.length - 2} esami in programma</p>
+                            <div class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-lg border border-purple-200 hover:from-purple-100 hover:to-pink-100 transition-colors">
+                                <i class="fas fa-external-link-alt mr-2"></i>
+                                <span class="font-medium">Vedi tutti gli esami</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            activeExamsContainer.innerHTML = html;
+        }
+        
+        function renderExamsList() {
+            const examsList = document.getElementById('exams-list');
+            const searchTerm = document.getElementById('exam-search')?.value.toLowerCase() || '';
+            const activeFilter = document.querySelector('.exam-filter-btn.active')?.dataset.filter || 'all';
+            
+            let filteredExams = state.exams;
+            
+            if (searchTerm) {
+                filteredExams = filteredExams.filter(exam => 
+                    exam.name.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            switch(activeFilter) {
+                case 'active':
+                    filteredExams = filteredExams.filter(exam => 
+                        calculateDaysUntil(exam.date) > 0
+                    );
+                    break;
+                case 'upcoming':
+                    filteredExams = filteredExams.filter(exam => 
+                        calculateDaysUntil(exam.date) <= 7 && calculateDaysUntil(exam.date) > 0
+                    );
+                    break;
+                case 'priority':
+                    filteredExams = filteredExams.filter(exam => 
+                        exam.priority === 'high'
+                    );
+                    break;
+            }
+            
+            if (filteredExams.length === 0) {
+                examsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search empty-state-icon"></i>
+                        <p class="text-gray-500">Nessun esame trovato</p>
+                        <p class="text-sm text-gray-400 mt-2">${searchTerm ? 'Prova con un termine di ricerca diverso' : 'Clicca su "Nuovo Esame" per iniziare'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const sortedExams = [...filteredExams].sort((a, b) => {
+                const priorityOrder = { high: 1, medium: 2, low: 3 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[a.priority] - priorityOrder[b.priority];
+                }
+                return new Date(a.date) - new Date(b.date);
+            });
+            
+            let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">';
+            
+            sortedExams.forEach(exam => {
+                const daysUntil = calculateDaysUntil(exam.date);
+                const phase = getStudyPhase(daysUntil, exam.totalPages, exam.completedPages);
+                const isAhead = exam.completedPages > exam.totalPages;
+                const priorityClass = `priority-${exam.priority}`;
+                
+                html += `
+                    <div class="glass-card p-5 ${priorityClass} task-card" data-exam-id="${exam.id}">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="font-bold text-lg truncate">${exam.name}</h3>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="phase-tag ${phase.phase === 'STUDIO' ? 'study-phase' : phase.phase === 'RIPASSO' ? 'review-phase' : 'exam-phase'}">${phase.phase}</span>
+                                    ${exam.priority === 'high' ? '<span class="stats-badge bg-red-100 text-red-700"><i class="fas fa-exclamation-circle"></i> Alta</span>' : ''}
+                                    ${exam.priority === 'medium' ? '<span class="stats-badge bg-yellow-100 text-yellow-700">Media</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button onclick="editExam('${exam.id}')" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteExam('${exam.id}')" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600"><i class="far fa-calendar mr-1"></i> Data:</span>
+                                <span class="font-medium">${formatDate(exam.date)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600"><i class="fas fa-award mr-1"></i> CFU:</span>
+                                <span class="font-medium">${exam.cfu}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600"><i class="fas fa-file-alt mr-1"></i> Pagine:</span>
+                                <span class="font-medium ${isAhead ? 'text-green-600' : ''}">${exam.completedPages}/${exam.totalPages} ${isAhead ? '🎯' : ''}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600"><i class="far fa-clock mr-1"></i> Giorni:</span>
+                                <span class="font-medium ${daysUntil < 7 ? 'text-red-500' : ''}">${daysUntil}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 p-3 bg-gradient-to-r from-gray-50 to-white rounded-lg">
+                            <p class="text-sm text-gray-600 mb-1">${phase.message}</p>
+                            ${phase.reviewDays > 0 ? `
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-xs text-blue-600"><i class="fas fa-clock mr-1"></i> ${phase.reviewDays} giorni di ripasso</span>
+                                    <span class="text-xs font-medium">${Math.round(phase.reviewPercent * 100)}%</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button onclick="incrementProgress('${exam.id}', 1)" class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                                <i class="fas fa-plus mr-1"></i> +1
+                            </button>
+                            <button onclick="incrementProgress('${exam.id}', 5)" class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+                                <i class="fas fa-plus mr-1"></i> +5
+                            </button>
+                            <button onclick="markExamPassed('${exam.id}')" class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200">
+                                <i class="fas fa-check mr-1"></i> Superato
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            examsList.innerHTML = html;
+        }
+        
+        function updateSmartSuggestions() {
+            const suggestionsContainer = document.getElementById('smart-suggestions');
+            const suggestionContent = document.getElementById('suggestion-content');
+            
+            if (state.exams.length === 0) {
+                suggestionsContainer.classList.add('hidden');
+                return;
+            }
+            
+            suggestionsContainer.classList.remove('hidden');
+            
+            const urgentExams = state.exams.filter(exam => {
+                const daysUntil = calculateDaysUntil(exam.date);
+                return daysUntil <= 7 && exam.completedPages < exam.totalPages;
+            });
+            
+            const aheadExams = state.exams.filter(exam => exam.completedPages > exam.totalPages);
+            const behindExams = state.exams.filter(exam => {
+                const daysUntil = calculateDaysUntil(exam.date);
+                const phase = getStudyPhase(daysUntil, exam.totalPages, exam.completedPages);
+                return phase.reviewDays === 0 && exam.completedPages < exam.totalPages;
+            });
+            
+            let suggestions = [];
+            
+            if (urgentExams.length > 0) {
+                suggestions.push(`<p class="mb-2"><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> <strong>Attenzione:</strong> ${urgentExams.length} esame/i urgente/i (meno di 7 giorni). Concentrati su questi!</p>`);
+            }
+            
+            if (aheadExams.length > 0) {
+                suggestions.push(`<p class="mb-2"><i class="fas fa-trophy text-green-500 mr-2"></i> <strong>Fantastico:</strong> Sei in anticipo su ${aheadExams.length} esame/i! Dedica tempo al ripasso.</p>`);
+            }
+            
+            if (behindExams.length > 0) {
+                suggestions.push(`<p class="mb-2"><i class="fas fa-running text-red-500 mr-2"></i> <strong>Da recuperare:</strong> ${behindExams.length} esame/i sono in ritardo. Aumenta il ritmo!</p>`);
+            }
+            
+            if (suggestions.length === 0) {
+                suggestions.push(`<p class="mb-2"><i class="fas fa-thumbs-up text-blue-500 mr-2"></i> <strong>Ottimo lavoro:</strong> Sei in linea con il piano di studio. Continua così!</p>`);
+            }
+            
+            const { todayTasks } = calculateTodayTasks();
+            if (todayTasks.length > 0) {
+                const totalPages = todayTasks.reduce((sum, task) => sum + task.pages, 0);
+                suggestions.push(`<p class="mt-3 text-sm"><i class="fas fa-lightbulb text-purple-500 mr-2"></i> Oggi hai ${totalPages} pagine da studiare. Usa il timer Pomodoro per massimizzare la concentrazione!</p>`);
+            }
+            
+            suggestionContent.innerHTML = suggestions.join('');
+        }
+
+        // ============================================
+        // TASKS OGGI
+        // ============================================
+        
+        function updateTodayDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('today-date').textContent = today.toLocaleDateString('it-IT', options);
+        }
+        
+        function updateTasksView() {
+            const { totalTasks, todayTasks, totalPagesToday } = calculateTodayTasks();
+            const completedTasksCount = todayTasks.filter(task => 
+                state.completedTasks.includes(`${task.examId}-${new Date().toDateString()}`)
+            ).length;
+            
+            document.getElementById('total-tasks-count').textContent = totalTasks;
+            document.getElementById('completed-tasks-count').textContent = completedTasksCount;
+            document.getElementById('total-pages-today').textContent = totalPagesToday;
+            
+            document.getElementById('daily-notes').value = state.dailyNotes;
+            
+            const tasksList = document.getElementById('tasks-list');
+            
+            if (todayTasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list empty-state-icon"></i>
+                        <p class="text-gray-500">Nessun task per oggi</p>
+                        <p class="text-sm text-gray-400 mt-2">Aggiungi un esame per generare i tasks</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tasksHTML = '';
+            todayTasks.forEach(task => {
+                const priorityColor = task.priority === 'high' ? 'border-red-400' : 
+                                   task.priority === 'medium' ? 'border-yellow-400' : 'border-green-400';
+                const isCompleted = task.isCompleted;
+                
+                tasksHTML += `
+                    <div class="task-card p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border-l-4 ${priorityColor} ${isCompleted ? 'task-completed' : ''}"
+                         data-task-id="${task.examId}-${new Date().toDateString()}"
+                         data-exam-id="${task.examId}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <button onclick="completeTask('${task.examId}-${new Date().toDateString()}')" class="mr-3 p-2 ${isCompleted ? 'text-green-500 bg-green-50' : 'text-gray-400 hover:text-green-500 hover:bg-green-50'} rounded-lg transition-colors">
+                                    <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-check'}"></i>
+                                </button>
+                                <div>
+                                    <h4 class="task-title font-bold">${task.exam}</h4>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <span class="phase-tag ${task.phase === 'STUDIO' ? 'study-phase' : 'review-phase'}">${task.phase}</span>
+                                        <span class="text-xs ${task.priority === 'high' ? 'text-red-500' : task.priority === 'medium' ? 'text-yellow-500' : 'text-green-500'}">
+                                            <i class="fas fa-flag mr-1"></i>${task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Bassa'}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            <i class="far fa-clock mr-1"></i>${task.daysUntil} giorni rimanenti
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold gradient-text">${task.pages}</div>
+                                <p class="text-sm text-gray-500">pagine</p>
+                            </div>
+                        </div>
+                        
+                        <div class="pl-12">
+                            <p class="text-sm text-gray-600 mb-2">${task.message}</p>
+                            ${task.reviewDays > 0 ? `
+                                <div class="flex items-center justify-between bg-blue-50 p-2 rounded-lg">
+                                    <div class="flex items-center text-xs text-blue-600">
+                                        <i class="fas fa-clock mr-2"></i>
+                                        <div>
+                                            <p class="font-medium">Tempo di ripasso previsto:</p>
+                                            <p>${task.reviewDays} giorni (${Math.round(state.settings.reviewPercentage)}% del tempo totale)</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="incrementProgress('${task.examId}', 5)" class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
+                                        <i class="fas fa-plus mr-1"></i> Anticipa 5 pagine
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tasksList.innerHTML = tasksHTML;
+        }
+
+        // ============================================
+        // LIBRETTO VOTI
+        // ============================================
+        
+        function updateGradesView() {
+            const totalCfu = state.passedExams.reduce((sum, exam) => sum + exam.cfu, 0);
+            const weightedAverage = calculateWeightedAverage();
+            
+            document.getElementById('weighted-average').textContent = weightedAverage.toFixed(2);
+            document.getElementById('total-cfu').textContent = totalCfu;
+            document.getElementById('exams-passed').textContent = state.passedExams.length;
+            
+            renderGradesTable();
+        }
+        
+        function calculateWeightedAverage() {
+            if (state.passedExams.length === 0) return 0;
+            
+            const totalWeightedScore = state.passedExams.reduce((sum, exam) => sum + (exam.grade * exam.cfu), 0);
+            const totalCfu = state.passedExams.reduce((sum, exam) => sum + exam.cfu, 0);
+            
+            return totalWeightedScore / totalCfu;
+        }
+        
+        function renderGradesTable() {
+            const tableBody = document.getElementById('grades-table-body');
+            
+            if (state.passedExams.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="fas fa-inbox empty-state-icon"></i>
+                            <p>Nessun esame superato ancora</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            state.passedExams.forEach(exam => {
+                html += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 font-medium">${exam.name}</td>
+                        <td class="py-3 px-4">${formatDate(exam.date)}</td>
+                        <td class="py-3 px-4">${exam.cfu}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-3 py-1 rounded-full ${exam.grade >= 28 ? 'bg-green-100 text-green-700' : exam.grade >= 24 ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">
+                                ${exam.grade}/30
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <button onclick="deletePassedExam('${exam.id}')" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+        
+        function deletePassedExam(examId) {
+            showModal('Conferma Eliminazione', 'Sei sicuro di voler eliminare questo esame dal libretto?', false, () => {
+                const examIndex = state.passedExams.findIndex(e => e.id === examId);
+                if (examIndex === -1) return;
+                
+                const examName = state.passedExams[examIndex].name;
+                state.passedExams.splice(examIndex, 1);
+                
+                saveToLocalStorage();
+                updateGradesView();
+                updateSimulator();
+                
+                showToast(`Esame "${examName}" rimosso dal libretto`);
+            });
+        }
+
+        // ============================================
+        // SIMULATORE LAUREA
+        // ============================================
+        
+        function updateSimulator() {
+            const currentAverage = calculateWeightedAverage();
+            const currentCfu = state.passedExams.reduce((sum, exam) => sum + exam.cfu, 0);
+            const remainingCfu = TOTAL_CFU - currentCfu;
+            const startingGrade = Math.min(110, Math.round((currentAverage * 110) / 30));
+            
+            document.getElementById('current-average').textContent = currentAverage.toFixed(2);
+            document.getElementById('current-cfu').textContent = currentCfu;
+            document.getElementById('remaining-cfu').textContent = remainingCfu;
+            document.getElementById('starting-grade').textContent = `${startingGrade}/110`;
+            
+            const cfuPercent = Math.min(100, Math.round((currentCfu / TOTAL_CFU) * 100));
+            document.getElementById('cfu-progress-bar').style.width = `${cfuPercent}%`;
+            document.getElementById('cfu-progress-text').textContent = `${currentCfu}/${TOTAL_CFU}`;
+            
+            document.getElementById('calculate-target').addEventListener('click', calculateTargetGrade);
+        }
+        
+        function calculateTargetGrade() {
+            const targetGrade = parseInt(document.getElementById('target-grade').value);
+            const currentAverage = calculateWeightedAverage();
+            const currentCfu = state.passedExams.reduce((sum, exam) => sum + exam.cfu, 0);
+            const remainingCfu = TOTAL_CFU - currentCfu;
+            
+            if (remainingCfu <= 0) {
+                showModal('Informazione', 'Hai già completato tutti i CFU! Il tuo voto di laurea è determinato.', false);
+                return;
+            }
+            
+            const targetAverage = (targetGrade * 30) / 110;
+            const neededAverage = (targetAverage * TOTAL_CFU - currentAverage * currentCfu) / remainingCfu;
+            
+            const targetResult = document.getElementById('target-result');
+            const targetMessage = document.getElementById('target-message');
+            const targetDetails = document.getElementById('target-details');
+            
+            if (neededAverage > 30) {
+                targetMessage.textContent = 'Obiettivo non raggiungibile';
+                targetDetails.textContent = `Per raggiungere ${targetGrade}/110 dovresti avere una media di ${neededAverage.toFixed(2)}/30 nei prossimi ${remainingCfu} CFU, che è impossibile (massimo 30/30).`;
+                targetResult.classList.remove('hidden');
+                targetResult.className = 'mt-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 rounded-xl';
+            } else if (neededAverage < 18) {
+                targetMessage.textContent = 'Obiettivo raggiungibile facilmente';
+                targetDetails.textContent = `Per raggiungere ${targetGrade}/110 ti basta una media di ${neededAverage.toFixed(2)}/30 nei prossimi ${remainingCfu} CFU. Continua così!`;
+                targetResult.classList.remove('hidden');
+                targetResult.className = 'mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl';
+            } else {
+                targetMessage.textContent = 'Obiettivo raggiungibile con impegno';
+                targetDetails.textContent = `Per raggiungere ${targetGrade}/110 devi avere una media di ${neededAverage.toFixed(2)}/30 nei prossimi ${remainingCfu} CFU. Puoi farcela!`;
+                targetResult.classList.remove('hidden');
+                targetResult.className = 'mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl';
+            }
+        }
+
+        // ============================================
+        // POMODORO TIMER
+        // ============================================
+        
+        function initPomodoro() {
+            document.getElementById('pomodoro-start').addEventListener('click', togglePomodoro);
+            document.getElementById('pomodoro-reset').addEventListener('click', resetPomodoro);
+            
+            setInterval(updatePomodoroDisplay, 1000);
+        }
+        
+        function togglePomodoro() {
+            const startBtn = document.getElementById('pomodoro-start');
+            
+            if (state.pomodoro.isRunning) {
+                clearInterval(state.pomodoro.timerId);
+                state.pomodoro.isRunning = false;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Riprendi';
+            } else {
+                state.pomodoro.isRunning = true;
+                startBtn.innerHTML = '<i class="fas fa-pause"></i> Pausa';
+                
+                state.pomodoro.timerId = setInterval(() => {
+                    state.pomodoro.timeLeft--;
+                    
+                    if (state.pomodoro.timeLeft <= 0) {
+                        clearInterval(state.pomodoro.timerId);
+                        state.pomodoro.isRunning = false;
+                        startBtn.innerHTML = '<i class="fas fa-play"></i> Inizia';
+                        
+                        if (state.settings.pomodoroSound) {
+                            playNotificationSound();
+                        }
+                        
+                        if (state.pomodoro.isWorkTime) {
+                            state.pomodoro.isWorkTime = false;
+                            state.pomodoro.timeLeft = state.pomodoro.breakTime;
+                            document.getElementById('pomodoro-phase').textContent = 'Pausa';
+                            
+                            showToast('Tempo di lavoro finito! 🎉 Prenditi una pausa di 5 minuti.');
+                        } else {
+                            state.pomodoro.isWorkTime = true;
+                            state.pomodoro.timeLeft = state.pomodoro.workTime;
+                            document.getElementById('pomodoro-phase').textContent = 'Lavoro';
+                            
+                            showToast('Pausa finita! 💪 Torna al lavoro per 25 minuti.');
+                        }
+                        
+                        setTimeout(() => {
+                            state.pomodoro.isRunning = true;
+                            startBtn.innerHTML = '<i class="fas fa-pause"></i> Pausa';
+                            state.pomodoro.timerId = setInterval(() => {
+                                state.pomodoro.timeLeft--;
+                                updatePomodoroDisplay();
+                                
+                                if (state.pomodoro.timeLeft <= 0) {
+                                    clearInterval(state.pomodoro.timerId);
+                                    togglePomodoro();
+                                }
+                            }, 1000);
+                        }, 2000);
+                    }
+                    
+                    updatePomodoroDisplay();
+                }, 1000);
+            }
+        }
+        
+        function resetPomodoro() {
+            clearInterval(state.pomodoro.timerId);
+            state.pomodoro.isRunning = false;
+            state.pomodoro.isWorkTime = true;
+            state.pomodoro.timeLeft = state.pomodoro.workTime;
+            
+            document.getElementById('pomodoro-start').innerHTML = '<i class="fas fa-play"></i> Inizia';
+            document.getElementById('pomodoro-phase').textContent = 'Lavoro';
+            
+            updatePomodoroDisplay();
+        }
+        
+        function updatePomodoroDisplay() {
+            const minutes = Math.floor(state.pomodoro.timeLeft / 60);
+            const seconds = state.pomodoro.timeLeft % 60;
+            
+            document.getElementById('pomodoro-time').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const totalTime = state.pomodoro.isWorkTime ? state.pomodoro.workTime : state.pomodoro.breakTime;
+            const progress = 283 - (state.pomodoro.timeLeft / totalTime) * 283;
+            document.getElementById('pomodoro-progress').style.strokeDashoffset = progress;
+        }
+        
+        function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log("Audio non supportato");
+            }
+        }
+
+        // ============================================
+        // WATER TRACKER
+        // ============================================
+        
+        function initWaterTracker() {
+            document.getElementById('add-water-single')?.addEventListener('click', () => addWater(1));
+            document.getElementById('quick-add-1')?.addEventListener('click', () => addWater(1));
+            document.getElementById('quick-add-3')?.addEventListener('click', () => addWater(3));
+            document.getElementById('quick-add-5')?.addEventListener('click', () => addWater(5));
+            document.getElementById('reset-water')?.addEventListener('click', resetWaterTracker);
+            
+            updateWaterDisplay();
+        }
+        
+        function addWater(glasses) {
+            state.waterTracker.count += glasses;
+            
+            if (state.waterTracker.count > 10) {
+                state.waterTracker.count = 10;
+                showToast('Hai raggiunto il limite giornaliero consigliato! 💧');
+            } else {
+                showToast(`Aggiunti ${glasses} bicchieri d'acqua! 💦`);
+            }
+            
+            saveToLocalStorage();
+            updateWaterDisplay();
+        }
+        
+        function resetWaterTracker() {
+            state.waterTracker.count = 0;
+            state.waterTracker.lastReset = new Date().toDateString();
+            
+            saveToLocalStorage();
+            updateWaterDisplay();
+            
+            showToast('Water tracker resettato per oggi! 💧');
+        }
+        
+        function updateWaterDisplay() {
+            const waterCount = state.waterTracker.count;
+            document.getElementById('water-count').textContent = waterCount;
+            
+            const progressPercent = Math.min(100, (waterCount / 10) * 100);
+            const progressBar = document.getElementById('water-progress');
+            if (progressBar) {
+                progressBar.style.width = `${progressPercent}%`;
+                
+                if (progressPercent >= 100) {
+                    progressBar.className = 'h-full rounded-full bg-gradient-to-r from-green-400 to-emerald-600 transition-all duration-500';
+                } else if (progressPercent >= 70) {
+                    progressBar.className = 'h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-500';
+                } else if (progressPercent >= 40) {
+                    progressBar.className = 'h-full rounded-full bg-gradient-to-r from-blue-300 to-blue-500 transition-all duration-500';
+                } else {
+                    progressBar.className = 'h-full rounded-full bg-gradient-to-r from-blue-200 to-blue-400 transition-all duration-500';
+                }
+            }
+        }
+        
+        function checkWaterReset() {
+            const today = new Date().toDateString();
+            
+            if (state.waterTracker.lastReset !== today) {
+                state.waterTracker.count = 0;
+                state.waterTracker.lastReset = today;
+                saveToLocalStorage();
+                updateWaterDisplay();
+            }
+        }
+
+        // ============================================
+        // IMPOSTAZIONI E BACKUP
+        // ============================================
+        
+        function initSettings() {
+            document.getElementById('save-settings').addEventListener('click', saveSettings);
+            document.getElementById('reset-data').addEventListener('click', resetAllData);
+            
+            const reviewPercentageSlider = document.getElementById('review-percentage');
+            const reviewPercentageValue = document.getElementById('review-percentage-value');
+            
+            reviewPercentageSlider.addEventListener('input', function() {
+                reviewPercentageValue.textContent = `${this.value}%`;
+            });
+        }
+        
+        function updateSettingsView() {
+            document.querySelector(`input[name="time-preference"][value="${state.settings.timePreference}"]`).checked = true;
+            document.getElementById('pomodoro-sound').checked = state.settings.pomodoroSound;
+            document.getElementById('review-percentage').value = state.settings.reviewPercentage;
+            document.getElementById('review-percentage-value').textContent = `${state.settings.reviewPercentage}%`;
+        }
+        
+        function saveSettings() {
+            const timePref = document.querySelector('input[name="time-preference"]:checked');
+            state.settings.timePreference = timePref ? timePref.value : 'early';
+            
+            state.settings.reviewPercentage = parseInt(document.getElementById('review-percentage').value);
+            state.settings.pomodoroSound = document.getElementById('pomodoro-sound').checked;
+            
+            saveToLocalStorage();
+            showToast('Impostazioni salvate con successo! ⚙️');
+            updateDashboard();
+        }
+        
+        function initBackup() {
+            document.getElementById('export-backup').addEventListener('click', exportBackup);
+            
+            document.getElementById('import-backup').addEventListener('click', () => {
+                document.getElementById('import-file').click();
+            });
+            
+            document.getElementById('import-file').addEventListener('change', importBackup);
+        }
+        
+        function exportBackup() {
+            const backupData = {
+                exams: state.exams,
+                passedExams: state.passedExams,
+                settings: state.settings,
+                waterTracker: state.waterTracker,
+                dailyNotes: state.dailyNotes,
+                completedTasks: state.completedTasks,
+                exportDate: new Date().toISOString()
+            };
+            
+            const jsonData = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `unifra-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            showToast('Backup esportato con successo! 💾');
+        }
+        
+        function importBackup() {
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showToast('Nessun file selezionato!');
+                return;
+            }
+            
+            document.getElementById('import-file-name').textContent = file.name;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (!backupData.exams || !backupData.passedExams) {
+                        throw new Error('File di backup non valido');
+                    }
+                    
+                    showModal('Importa Backup', 
+                        'Sei sicuro di voler importare questo backup? Tutti i dati attuali verranno sovrascritti.', 
+                        false, 
+                        () => {
+                            state.exams = backupData.exams || [];
+                            state.passedExams = backupData.passedExams || [];
+                            state.settings = backupData.settings || {
+                                timePreference: 'early',
+                                reviewPercentage: 35,
+                                pomodoroSound: true
+                            };
+                            state.waterTracker = backupData.waterTracker || { count: 0, lastReset: null };
+                            state.dailyNotes = backupData.dailyNotes || '';
+                            state.completedTasks = backupData.completedTasks || [];
+                            
+                            saveToLocalStorage();
+                            
+                            setTimeout(() => {
+                                location.reload();
+                            }, 500);
+                        });
+                } catch (e) {
+                    showToast('Errore durante l\'importazione del backup!');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        function resetAllData() {
+            showModal('Reset Dati', 
+                'Sei sicuro di voler eliminare TUTTI i dati? Questa azione non può essere annullata!', 
+                false, 
+                () => {
+                    localStorage.removeItem('unifra-data');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                });
+        }
+
+        // ============================================
+        // FUNZIONI GLOBALI (per accesso da onclick)
+        // ============================================
+        
+        window.editExam = editExam;
+        window.deleteExam = deleteExam;
+        window.markExamPassed = markExamPassed;
+        window.quickAddPages = incrementProgress;
+        window.incrementProgress = incrementProgress;
+        window.completeTask = completeTask;
+        window.deletePassedExam = deletePassedExam;
+    </script>
+</body>
+</html>
