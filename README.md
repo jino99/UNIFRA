@@ -1,4 +1,4 @@
-# unifra
+# UNIFRA
 UNIFRA - Intelligent University Management
 UNIFRA is a comprehensive, single-page web application designed to help university students organize their study schedules, track their academic progress, and maintain a healthy study-life balance. Built entirely as a client-side application, it requires no backend and stores all data locally in the user's browser.
 
